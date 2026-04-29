@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — SubTracker{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Dashboard</h4>
+    <span class="text-muted small">Today: {{ today }}</span>
+</div>
+
+<!-- Stat Cards Row -->
+<div class="row g-3 mb-4">
+
+    <!-- Total Clients -->
+    <div class="col-md-4 col-lg-2-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #4e9af1, #1a73e8);">
+            <div class="stat-number">{{ total_clients }}</div>
+            <div class="stat-label"><i class="bi bi-people me-1"></i>Total Clients</div>
+        </div>
+    </div>
+
+    <!-- Active Subscriptions -->
+    <div class="col-md-4 col-lg-2-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #34d399, #10b981);">
+            <div class="stat-number">{{ active_count }}</div>
+            <div class="stat-label"><i class="bi bi-check-circle me-1"></i>Active</div>
+        </div>
+    </div>
+
+    <!-- Expired -->
+    <div class="col-md-4 col-lg-2-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #f87171, #ef4444);">
+            <div class="stat-number">{{ expired_count }}</div>
+            <div class="stat-label"><i class="bi bi-x-circle me-1"></i>Expired</div>
+        </div>
+    </div>
+
+    <!-- Expiring Soon -->
+    <div class="col-md-4 col-lg-2-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #fb923c, #f97316);">
+            <div class="stat-number">{{ expiring_soon_count }}</div>
+            <div class="stat-label"><i class="bi bi-clock me-1"></i>Expiring Soon</div>
+        </div>
+    </div>
+
+    <!-- Unpaid -->
+    <div class="col-md-4 col-lg-2-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #a78bfa, #7c3aed);">
+            <div class="stat-number">{{ unpaid_count }}</div>
+            <div class="stat-label"><i class="bi bi-exclamation-circle me-1"></i>Unpaid</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Expiring Soon Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-semibold">
+            <i class="bi bi-clock-history me-2 text-warning"></i>
+            Subscriptions Expiring Within 7 Days
+        </h6>
+        <a href="{% url 'subscription_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="card-body p-0">
+        {% if expiring_soon_list %}
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Client</th>
+                    <th>Business</th>
+                    <th>Expiry Date</th>
+                    <th>Payment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in expiring_soon_list %}
+                <tr>
+                    <td class="ps-3">{{ sub.client.name }}</td>
+                    <td>{{ sub.client.business_name }}</td>
+                    <td>
+                        <span class="text-warning fw-semibold">{{ sub.expiry_date }}</span>
+                    </td>
+                    <td>
+                        {% if sub.payment_status == 'paid' %}
+                            <span class="badge bg-success">Paid</span>
+                        {% elif sub.payment_status == 'unpaid' %}
+                            <span class="badge bg-danger">Unpaid</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Partial</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'subscription_edit' sub.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-check2-circle fs-3"></i>
+                <p class="mt-2 mb-0">No subscriptions expiring soon.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

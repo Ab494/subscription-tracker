@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} — SubTracker{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <a href="{% url 'client_list' %}" class="text-muted text-decoration-none small">
+        <i class="bi bi-arrow-left me-1"></i> Back to Clients
+    </a>
+    <h4 class="fw-bold mt-1">{{ title }}</h4>
+</div>
+
+<div class="card border-0 shadow-sm" style="max-width: 600px;">
+    <div class="card-body p-4">
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Name -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Full Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Phone Number -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Phone Number</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                    <div class="text-danger small mt-1">{{ form.phone_number.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Email Address</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Business Name -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Business Name</label>
+                {{ form.business_name }}
+                {% if form.business_name.errors %}
+                    <div class="text-danger small mt-1">{{ form.business_name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Status -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Status</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <div class="text-danger small mt-1">{{ form.status.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i> Save Client
+                </button>
+                <a href="{% url 'client_list' %}" class="btn btn-outline-secondary px-4">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

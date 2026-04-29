@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Subscriptions — SubTracker{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Subscriptions</h4>
+    <div class="d-flex gap-2">
+        <!-- Export CSV button -->
+        <a href="{% url 'export_subscriptions_csv' %}" class="btn btn-outline-success">
+            <i class="bi bi-download me-1"></i> Export CSV
+        </a>
+        <!-- Add new subscription -->
+        <a href="{% url 'subscription_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Add Subscription
+        </a>
+    </div>
+</div>
+
+<!-- Filter Tabs by payment status -->
+<div class="mb-4">
+    <div class="btn-group" role="group">
+        <a href="{% url 'subscription_list' %}"
+           class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            All
+        </a>
+        <a href="?status=paid"
+           class="btn btn-sm {% if status_filter == 'paid' %}btn-success{% else %}btn-outline-secondary{% endif %}">
+            Paid
+        </a>
+        <a href="?status=unpaid"
+           class="btn btn-sm {% if status_filter == 'unpaid' %}btn-danger{% else %}btn-outline-secondary{% endif %}">
+            Unpaid
+        </a>
+        <a href="?status=partial"
+           class="btn btn-sm {% if status_filter == 'partial' %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+            Partial
+        </a>
+    </div>
+</div>
+
+<!-- Subscriptions Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        {% if subscriptions %}
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">#</th>
+                    <th>Client</th>
+                    <th>Business</th>
+                    <th>Start Date</th>
+                    <th>Expiry Date</th>
+                    <th>Amount</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in subscriptions %}
+                <tr>
+                    <td class="ps-3 text-muted">{{ forloop.counter }}</td>
+                    <td>
+                        <!-- Link to client detail page -->
+                        <a href="{% url 'client_detail' sub.client.pk %}" class="text-decoration-none fw-semibold">
+                            {{ sub.client.name }}
+                        </a>
+                    </td>
+                    <td>{{ sub.client.business_name }}</td>
+                    <td>{{ sub.start_date }}</td>
+                    <td>
+                        <!-- Color code expiry date based on subscription status -->
+                        {% if sub.is_expiring_soon %}
+                            <span class="text-warning fw-semibold">
+                                <i class="bi bi-clock me-1"></i>{{ sub.expiry_date }}
+                            </span>
+                        {% elif sub.is_expired %}
+                            <span class="text-danger fw-semibold">{{ sub.expiry_date }}</span>
+                        {% else %}
+                            <span class="text-success">{{ sub.expiry_date }}</span>
+                        {% endif %}
+                    </td>
+                    <td>KES {{ sub.amount_paid }}</td>
+                    <td>
+                        <!-- Payment status badge -->
+                        {% if sub.payment_status == 'paid' %}
+                            <span class="badge bg-success">Paid</span>
+                        {% elif sub.payment_status == 'unpaid' %}
+                            <span class="badge bg-danger">Unpaid</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Partial</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <!-- Subscription activity status badge -->
+                        {% if sub.is_expiring_soon %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-clock me-1"></i>Expiring Soon
+                            </span>
+                        {% elif sub.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Expired</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'subscription_edit' sub.pk %}" class="btn btn-sm btn-outline-secondary me-1">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'subscription_delete' sub.pk %}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <!-- Empty state message -->
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-card-checklist fs-2"></i>
+                <p class="mt-2 mb-0">
+                    {% if status_filter %}
+                        No subscriptions with status <strong>{{ status_filter }}</strong>.
+                    {% else %}
+                        No subscriptions yet. Add your first one.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
