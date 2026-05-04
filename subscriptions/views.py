@@ -12,28 +12,43 @@ from django.http import HttpResponse
 @login_required
 def subscription_list(request):
     """
-    Display all subscriptions with optional filter by payment status.
-    Also handles filtering by active, expired, expiring soon.
+    Display all subscriptions with optional filter by payment
+    status or subscription status (active, expired, expiring soon).
     """
     subscriptions = Subscription.objects.select_related('client').all()
 
-    # Get filter value from URL e.g. ?status=paid
+    # Get both filter values from URL params
+    payment_filter = request.GET.get('payment', '')
     status_filter = request.GET.get('status', '')
 
-    if status_filter:
-        subscriptions = subscriptions.filter(payment_status=status_filter)
-
-    # Get today's date for expiry calculations
     today = timezone.now().date()
     soon = today + timedelta(days=7)
 
+    # Filter by payment status if provided
+    if payment_filter:
+        subscriptions = subscriptions.filter(payment_status=payment_filter)
+
+    # Filter by subscription status if provided
+    if status_filter == 'active':
+        # Active — expiry date beyond the 7 day warning window
+        subscriptions = subscriptions.filter(expiry_date__gt=soon)
+    elif status_filter == 'expired':
+        # Expired — expiry date is in the past
+        subscriptions = subscriptions.filter(expiry_date__lt=today)
+    elif status_filter == 'expiring_soon':
+        # Expiring soon — within next 7 days but not yet expired
+        subscriptions = subscriptions.filter(
+            expiry_date__gte=today,
+            expiry_date__lte=soon
+        )
+
     return render(request, 'subscriptions/subscription_list.html', {
         'subscriptions': subscriptions,
+        'payment_filter': payment_filter,
         'status_filter': status_filter,
         'today': today,
         'soon': soon,
     })
-
 
 @login_required
 def subscription_create(request, client_pk=None):
