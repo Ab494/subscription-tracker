@@ -1,9 +1,28 @@
+# Virtual environments
 venv/
+env/
+.venv/
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+
+# Django
 db.sqlite3
-.env
 *.sqlite3
+.env
+
+# OS
 .DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Logs
 *.log
+
+# Requirements backup
+pip-log.txt
