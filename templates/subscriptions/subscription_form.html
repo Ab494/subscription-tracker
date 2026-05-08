@@ -16,6 +16,15 @@
         <form method="POST">
             {% csrf_token %}
 
+            <!-- Non-field errors e.g. expiry date before start date -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 mb-3">
+                    {% for error in form.non_field_errors %}
+                        <div><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <!-- Client -->
             <div class="mb-3">
                 <label class="form-label fw-semibold">Client</label>
@@ -25,7 +34,7 @@
                 {% endif %}
             </div>
 
-            <!-- Start & Expiry Date -->
+            <!-- Start & Expiry Date side by side -->
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Start Date</label>
@@ -63,14 +72,16 @@
 
             <!-- Notes -->
             <div class="mb-4">
-                <label class="form-label fw-semibold">Notes <span class="text-muted fw-normal">(optional)</span></label>
+                <label class="form-label fw-semibold">
+                    Notes <span class="text-muted fw-normal">(optional)</span>
+                </label>
                 {{ form.notes }}
                 {% if form.notes.errors %}
                     <div class="text-danger small mt-1">{{ form.notes.errors }}</div>
                 {% endif %}
             </div>
 
-            <!-- Buttons -->
+            <!-- Action Buttons -->
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary px-4">
                     <i class="bi bi-check-lg me-1"></i> Save Subscription
@@ -79,6 +90,7 @@
                     Cancel
                 </a>
             </div>
+
         </form>
     </div>
 </div>
