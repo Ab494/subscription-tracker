@@ -49,8 +49,12 @@ class Subscription(models.Model):
 
     @property
     def is_active(self):
-        """Returns True if the subscription has not yet expired."""
-        return self.expiry_date >= timezone.now().date()
+      """
+      Returns True only if subscription is active
+      and not within the 7 day expiry warning window."""
+      today = timezone.now().date()
+      soon = today + timedelta(days=7)
+      return self.expiry_date > soon
 
     @property
     def is_expired(self):

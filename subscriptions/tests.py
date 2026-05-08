@@ -58,8 +58,8 @@ class SubscriptionStatusTests(TestCase):
 
     def test_expiring_soon_subscription(self):
         """
-        A subscription expiring in 5 days should flag as
-        expiring soon and still be considered active.
+        A subscription expiring in 5 days should flag as expiring soon.
+        It should NOT be considered active since it is in the warning window.
         """
         sub = Subscription.objects.create(
             client=self.client_obj,
@@ -69,5 +69,20 @@ class SubscriptionStatusTests(TestCase):
             payment_status='unpaid'
         )
         self.assertTrue(sub.is_expiring_soon)
-        self.assertTrue(sub.is_active)
+        self.assertFalse(sub.is_active)   # expiring soon is NOT active
         self.assertFalse(sub.is_expired)
+
+    def test_expiring_soon_not_expired(self):
+        """
+        A subscription expiring in 5 days should not be
+        considered expired — it has not passed its expiry date yet.
+        """
+        sub = Subscription.objects.create(
+            client=self.client_obj,
+            start_date=timezone.now().date() - timedelta(days=25),
+            expiry_date=timezone.now().date() + timedelta(days=5),
+            amount_paid=500,
+            payment_status='unpaid'
+        )
+        self.assertFalse(sub.is_expired)
+        self.assertTrue(sub.is_expiring_soon)
